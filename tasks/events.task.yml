@@ -1,0 +1,22 @@
+name: efcg.events
+run: events.sql
+type: bq.sql
+materialization:
+  type: table
+  partition_by: dt
+  strategy: delete+insert
+  incremental_key: dt
+depends: 
+  - efcg.events_raw
+description: |
+  This table unnests the raw events, so it becomes cheaper to query, and also easier to read.
+  If you are using this table, please first check if the metrics you want are already available in users_daily or users tables.
+
+tests:
+  columns:
+    user_pseudo_id:
+      - name: not_null
+    dt:
+      - name: not_null
+    event_name:
+      - name: not_null

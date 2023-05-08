@@ -1,0 +1,44 @@
+name: efcg.users
+run: users.sql
+type: bq.sql
+materialization:
+  type: table
+depends: 
+  - efcg.users_daily
+description: |
+  This table summarizes users lifetime activities. It's unique by user_pseudo_id column.   
+  It contains all the fundamental metrics for a user in the game.   
+  Can be used to calculate daily metrics.  
+  
+  ## Example queries:
+  
+  ### Daily Installs
+  ```sql
+  SELECT dt, count(*) as installs from efcg.users_daily group by 1 order by 1
+  ```
+
+  ### Cohorted metrics
+  ```sql
+  SELECT 
+    install_dt, 
+    count(*) as cohort_size,
+    avg(level_start) as level_start,
+    avg(level_end) as level_end,
+    avg(ad_reward) as ad_reward,
+  from efcg.users_daily
+  group by 1
+  order by 1
+  ```
+
+tests:
+  columns:
+    user_pseudo_id:
+      - name: not_null
+      - name: unique
+    platform:
+      - name: not_null
+      - name: accepted_values
+        equal_to:
+          value:
+            - "ANDROID"
+            - "IOS"

@@ -1,0 +1,46 @@
+name: efcg.users_daily
+run: users_daily.sql
+type: bq.sql
+materialization:
+  type: table
+  partition_by: dt
+  strategy: delete+insert
+  incremental_key: dt
+depends: 
+  - efcg.events
+description: |
+  This table summarizes users daily activities. It's unique by dt and user_pseudo_id columns.   
+  It contains all the fundamental metrics for a user in the game.   
+  Can be used to calculate daily metrics.  
+  
+  ## Example queries:
+  ### Daily Active Users (DAU)
+  ```sql
+  SELECT dt, count(*) as dau from efcg.users_daily group by 1 order by 1
+  ```
+
+  ### Daily Level Ends
+  ```sql
+  SELECT 
+    dt, 
+    avg(level_ends) as avg_level_ends, 
+    countif(level_ends > 0) as level_ends_uq,
+    sum(level_ends) / countif(level_ends > 0) as level_ends_per_uq
+  from efcg.users_daily
+  group by 1
+  order by 1
+  ```
+
+tests:
+  columns:
+    user_pseudo_id:
+      - name: not_null
+    dt:
+      - name: not_null
+    platform:
+      - name: not_null
+      - name: accepted_values
+        equal_to:
+          value:
+            - "ANDROID"
+            - "IOS"

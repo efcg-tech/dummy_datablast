@@ -1,0 +1,15 @@
+id: main
+schedule: "0 4 * * *"
+
+start_date: "2023-05-01"
+catchup: true
+
+default_connections:
+    gcp: "bigquery"
+
+notifications:
+    slack:
+        - name: blast-notifications
+          connection: "slack-notification"
+          success: ":tada: Pipeline has finished successfully!"
+          failure: ":red_circle: Pipeline has failed!"
